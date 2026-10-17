@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Online Product Review Analyzer</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+background:#f5f7fb;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+.navbar{
+background:#0d6efd;
+}
+
+.navbar-brand{
+color:white;
+font-size:25px;
+font-weight:bold;
+}
+
+.card{
+border:none;
+border-radius:15px;
+box-shadow:0 2px 10px rgba(0,0,0,.15);
+}
+
+.summary{
+color:white;
+border-radius:15px;
+padding:20px;
+}
+
+.bg1{
+background:#0d6efd;
+}
+
+.bg2{
+background:#198754;
+}
+
+.bg3{
+background:#ffc107;
+color:black;
+}
+
+.bg4{
+background:#dc3545;
+}
+
+.chart-card{
+
+padding:20px;
+
+margin-top:20px;
+
+}
+
+table{
+
+background:white;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+<div class="container-fluid">
+
+<span class="navbar-brand">
+
+Online Product Review Analyzer
+
+</span>
+
+<div>
+
+<a href="/search" class="btn btn-light me-2">
+    Search Product
+</a>
+
+<a href="/visitor" class="btn btn-warning me-2">
+    Visitor
+</a>
+
+<a href="/logout" class="btn btn-danger">
+    Logout
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
+<div class="container mt-4">
+
+<div class="row">
+
+<div class="col-md-3">
+
+<div class="card summary bg1">
+
+<h5>Total Reviews</h5>
+
+<h2>{{total_reviews}}</h2>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card summary bg2">
+
+<h5>Positive</h5>
+
+<h2>{{positive}}</h2>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card summary bg3">
+
+<h5>Neutral</h5>
+
+<h2>{{neutral}}</h2>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card summary bg4">
+
+<h5>Negative</h5>
+
+<h2>{{negative}}</h2>
+
+</div>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="card p-3">
+
+<h4>
+
+Platform Comparison
+
+</h4>
+
+<table class="table table-bordered table-hover">
+
+<thead class="table-primary">
+
+<tr>
+
+<th>Platform</th>
+
+<th>Average Rating</th>
+
+<th>Total Reviews</th>
+
+<th>Positive</th>
+
+<th>Neutral</th>
+
+<th>Negative</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for p in platform_summary %}
+
+<tr>
+
+<td>{{p.platform}}</td>
+
+<td>{{p.avg_rating}} ⭐</td>
+
+<td>{{p.total_reviews}}</td>
+
+<td>{{p.positive_reviews}}</td>
+
+<td>{{p.neutral_reviews}}</td>
+
+<td>{{p.negative_reviews}}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="row mt-4">
+
+<div class="col-md-4">
+
+<div class="card chart-card">
+
+<h5 align="center">
+
+Sentiment Distribution
+
+</h5>
+
+<canvas id="pieChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card chart-card">
+
+<h5 align="center">
+
+Platform Rating
+
+</h5>
+
+<canvas id="barChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card chart-card">
+
+<h5 align="center">
+
+Review Trend
+
+</h5>
+
+<canvas id="lineChart"></canvas>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+const positive = {{ positive }};
+const negative = {{ negative }};
+const neutral = {{ neutral }};
+
+// Platform Data
+const platformLabels = [
+{% for p in platform_summary %}
+"{{ p.platform }}",
+{% endfor %}
+];
+
+const platformRatings = [
+{% for p in platform_summary %}
+{{ p.avg_rating }},
+{% endfor %}
+];
+
+// ---------------- Pie Chart ----------------
+
+new Chart(document.getElementById("pieChart"),{
+
+type:"doughnut",
+
+data:{
+
+labels:["Positive","Negative","Neutral"],
+
+datasets:[{
+
+label:"Reviews",
+
+data:[positive,negative,neutral],
+
+backgroundColor:[
+"#28a745",
+"#dc3545",
+"#ffc107"
+],
+
+borderWidth:2
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+plugins:{
+legend:{
+position:"bottom"
+}
+}
+
+}
+
+});
+
+// ---------------- Bar Chart ----------------
+
+new Chart(document.getElementById("barChart"),{
+
+type:"bar",
+
+data:{
+
+labels:platformLabels,
+
+datasets:[{
+
+label:"Average Rating",
+
+data:platformRatings,
+
+backgroundColor:[
+"#0d6efd",
+"#20c997",
+"#ffc107",
+"#dc3545",
+"#6f42c1"
+]
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+scales:{
+
+y:{
+
+beginAtZero:true,
+
+max:5
+
+}
+
+}
+
+}
+
+});
+
+// ---------------- Line Chart ----------------
+
+new Chart(document.getElementById("lineChart"),{
+
+type:"line",
+
+data:{
+
+labels:["Positive","Negative","Neutral"],
+
+datasets:[{
+
+label:"Review Count",
+
+data:[positive,negative,neutral],
+
+borderColor:"#0d6efd",
+
+backgroundColor:"#0d6efd",
+
+fill:false,
+
+tension:0.4
+
+}]
+
+},
+
+options:{
+
+responsive:true
+
+}
+
+});
+
+</script>
+<!-- Recent Reviews -->
+<div class="card mt-4 p-3">
+
+<h4>Recent Reviews</h4>
+
+<table class="table table-striped table-bordered">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Platform</th>
+<th>Product</th>
+<th>Rating</th>
+<th>Sentiment</th>
+<th>Review</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for r in reviews %}
+
+<tr>
+
+<td>{{ r.platform }}</td>
+<td>{{ r.product_name }}</td>
+<td>{{ r.rating }} ⭐</td>
+<td>{{ r.sentiment }}</td>
+<td>{{ r.review }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

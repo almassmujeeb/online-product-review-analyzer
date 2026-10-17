@@ -1,0 +1,7 @@
+.left-side{
+    width:50%;
+    background:url("/static/images/login.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
